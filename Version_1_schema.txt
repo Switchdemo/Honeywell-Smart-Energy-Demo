@@ -1,0 +1,178 @@
+## Table `device_events`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `int8` | Primary |
+| `received_at` | `timestamptz` |  Nullable |
+| `device_uid` | `text` |  |
+| `event_id` | `int4` |  Nullable |
+| `lc_status` | `int4` |  Nullable |
+| `lc_status_label` | `text` |  Nullable |
+| `timestamp_unix` | `int8` |  Nullable |
+| `event_time` | `timestamptz` |  Nullable |
+| `raw_hex` | `text` |  Nullable |
+| `checksum_ok` | `bool` |  Nullable |
+
+## Table `device_groups`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `int8` | Primary |
+| `device_uid` | `text` |  |
+| `group_num` | `int4` |  |
+| `created_at` | `timestamptz` |  Nullable |
+| `group_number` | `int4` |  Nullable |
+
+## Table `device_health`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `int8` | Primary |
+| `recorded_at` | `timestamptz` |  Nullable |
+| `device_uid` | `text` |  |
+| `voltage` | `numeric` |  Nullable |
+| `temperature` | `numeric` |  Nullable |
+| `moved` | `int8` |  Nullable |
+| `orientation` | `text` |  Nullable |
+| `bars` | `int4` |  Nullable |
+| `rat` | `text` |  Nullable |
+| `sw_value` | `int4` |  Nullable |
+| `sq_value` | `int4` |  Nullable |
+| `session_reason` | `text` |  Nullable |
+| `raw` | `jsonb` |  Nullable |
+| `bearer` | `text` |  Nullable |
+| `firmware_version` | `text` |  Nullable |
+| `sinr` | `int4` |  Nullable |
+| `rssi` | `int4` |  Nullable |
+| `lat` | `numeric` |  Nullable |
+| `lon` | `numeric` |  Nullable |
+| `location` | `text` |  Nullable |
+| `rsrq` | `int4` |  Nullable |
+| `rsrp` | `int4` |  Nullable |
+
+## Table `device_readings`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `int8` | Primary |
+| `recorded_at` | `timestamptz` |  Nullable |
+| `device_uid` | `text` |  Nullable |
+| `header_byte` | `int4` |  Nullable |
+| `message_length` | `int4` |  Nullable |
+| `message_type` | `int4` |  Nullable |
+| `bubble_up_config` | `int4` |  Nullable |
+| `bubble_up_config_main` | `int4` |  Nullable |
+| `relay_status_r1` | `int4` |  Nullable |
+| `relay_status_r2` | `int4` |  Nullable |
+| `relay_status_r3` | `int4` |  Nullable |
+| `relay_status_r4` | `int4` |  Nullable |
+| `power_up_flag` | `int4` |  Nullable |
+| `customer_comfort` | `int4` |  Nullable |
+| `voltage` | `int4` |  Nullable |
+| `current` | `int4` |  Nullable |
+| `power_factor` | `int4` |  Nullable |
+| `watts_consumed` | `int4` |  Nullable |
+| `touch_pad_command` | `int4` |  Nullable |
+| `sw_value` | `int4` |  Nullable |
+| `sq_value` | `int4` |  Nullable |
+| `override_timer_value` | `int4` |  Nullable |
+| `serial_number` | `int4` |  Nullable |
+| `device_identifier` | `int4` |  Nullable |
+| `validation_code` | `int4` |  Nullable |
+| `raw_lc` | `text` |  Nullable |
+| `lat` | `float8` |  Nullable |
+| `lon` | `float8` |  Nullable |
+| `location` | `text` |  Nullable |
+| `country` | `text` |  Nullable |
+
+## Table `group_names`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `group_num` | `int4` | Primary |
+| `name` | `text` |  |
+| `updated_at` | `timestamptz` |  Nullable |
+| `group_number` | `int4` |  Nullable |
+
+## Table `schedule_queue`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `int8` | Primary |
+| `schedule_id` | `int8` |  Nullable |
+| `queued_at` | `timestamptz` |  Nullable |
+| `fire_at` | `timestamptz` |  Nullable |
+| `target_type` | `text` |  Nullable |
+| `target_id` | `text` |  Nullable |
+| `target_name` | `text` |  Nullable |
+| `relay_action` | `text` |  Nullable |
+| `status` | `text` |  Nullable |
+| `fired_at` | `timestamptz` |  Nullable |
+| `lc_mode` | `text` |  Nullable |
+| `lc_strategy` | `int4` |  Nullable |
+| `lc_reps` | `int4` |  Nullable |
+| `duration_minutes` | `int4` |  Nullable |
+| `one_time` | `bool` |  Nullable |
+| `name` | `text` |  Nullable |
+| `timezone` | `text` |  Nullable |
+| `action_time` | `time` |  Nullable |
+| `lc_timeout` | `numeric` |  Nullable |
+| `lc_cycle` | `numeric` |  Nullable |
+| `lc_event_id` | `int4` |  Nullable |
+
+## Table `schedules`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `int8` | Primary |
+| `name` | `text` |  Nullable |
+| `enabled` | `bool` |  Nullable |
+| `target_type` | `text` |  Nullable |
+| `target_id` | `text` |  Nullable |
+| `target_name` | `text` |  Nullable |
+| `frequency` | `text` |  Nullable |
+| `days_of_week` | `_int4` |  Nullable |
+| `action_time` | `time` |  Nullable |
+| `event_date` | `date` |  Nullable |
+| `timezone` | `text` |  Nullable |
+| `relay_action` | `text` |  Nullable |
+| `duration_minutes` | `int4` |  Nullable |
+| `one_time` | `bool` |  Nullable |
+| `lc_mode` | `text` |  Nullable |
+| `lc_strategy` | `int4` |  Nullable |
+| `lc_timeout` | `numeric` |  Nullable |
+| `lc_cycle` | `numeric` |  Nullable |
+| `lc_reps` | `int4` |  Nullable |
+| `created_at` | `timestamptz` |  Nullable |
+
+## Table `user_profiles`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `uuid` | Primary |
+| `email` | `text` |  |
+| `full_name` | `text` |  Nullable |
+| `role` | `text` |  |
+| `two_fa_required` | `bool` |  Nullable |
+| `two_fa_method` | `text` |  Nullable |
+| `created_at` | `timestamptz` |  Nullable |
+| `created_by` | `uuid` |  Nullable |
+| `last_login` | `timestamptz` |  Nullable |
+| `is_active` | `bool` |  Nullable |
+
