@@ -689,12 +689,8 @@
   <!-- Sub-tabs (shown contextually) -->
   <div class="sub-tabs" id="sub-tabs-monitor" style="display:none;">
     <button class="sub-tab-btn active" id="sub-monitor-triggers" onclick="switchSub('monitor','monitor-triggers',this)">Triggers</button>
-    <button class="sub-tab-btn" id="sub-monitor-device" onclick="switchSub('monitor','monitor-device',this)">Device Monitoring</button>
-    <button class="sub-tab-btn" id="sub-monitor-energy" onclick="switchSub('monitor','monitor-energy',this)">Energy Monitor</button>
     <button class="sub-tab-btn" id="sub-monitor-feeds" onclick="switchSub('monitor','monitor-feeds',this)">Data Feeds</button>
     <button class="sub-tab-btn" id="sub-monitor-outage" onclick="switchSub('monitor','monitor-outage',this)">&#9889; Outage Tracker</button>
-    <button class="sub-tab-btn" id="sub-monitor-scada" onclick="switchSub('monitor','monitor-scada',this)">&#128268; SCADA Data</button>
-    <button class="sub-tab-btn" id="sub-monitor-ev" onclick="switchSub('monitor','monitor-ev',this)">&#128268; EV Charging</button>
   </div>
   <div class="sub-tabs" id="sub-tabs-admin" style="display:none;">
     <button class="sub-tab-btn active" id="sub-admin-users" onclick="switchSub('admin','admin-users',this)">User Management</button>
@@ -2682,6 +2678,31 @@
 <div class="tab-pane" id="tab-monitor-feeds">
   <div class="scroll-content">
     <div style="max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:16px;padding:1rem;">
+
+      <!-- Feed Discovery -->
+      <div class="sched-card">
+        <div class="sched-card-header">
+          <div class="sched-card-title">🔍 Feed Discovery</div>
+          <button class="queue-refresh" onclick="runFeedDiscovery()">Discover Feeds</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-hint);margin-bottom:12px;">Automatically discover available data feeds from connected devices, weather stations, and integrations. Click a feed to add it to your active monitoring list.</div>
+        <div id="feed-discovery-list"><div class="sched-empty">Click Discover Feeds to scan for available data sources.</div></div>
+      </div>
+
+      <!-- Active Feeds -->
+      <div class="sched-card">
+        <div class="sched-card-header">
+          <div class="sched-card-title">📡 Active Data Feeds</div>
+          <div style="display:flex;gap:6px;">
+            <button class="queue-refresh" onclick="exportTriggerLogCSV()" style="color:var(--green-dark);border-color:var(--green);">⬇ Export CSV</button>
+            <button class="queue-refresh" onclick="loadActiveFeeds()">Refresh</button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-hint);margin-bottom:12px;">Live values from all configured data feeds. These feeds drive the Autopilot trigger rules.</div>
+        <div id="active-feeds-list"><div class="sched-empty">No feeds configured. Use Feed Discovery above to add feeds.</div></div>
+      </div>
+
+      <!-- Feed Charts -->
       <div class="sched-card">
         <div class="sched-card-header">
           <div class="sched-card-title">&#128202; Feed Data Charts</div>
@@ -3835,7 +3856,7 @@ function runTabInit(name) {
   if (name === "monitor-triggers") { initMonitorTriggersMain(); }
   if (name === "monitor-device")   { injectDeviceMonitoring(); }
   if (name === "monitor-energy")   { injectEnergyMonitor(); }
-  if (name === "monitor-feeds")    { initFeedCharts(); }
+  if (name === "monitor-feeds")    { initFeedCharts(); loadActiveFeeds(); if (typeof runFeedDiscovery === "function") runFeedDiscovery(); }
   if (name === "monitor-outage")   { initOutageTracker(); }
   if (name === "monitor-scada")    { initSCADA(); }
   if (name === "monitor-ev")       { initEVCharging(); }
