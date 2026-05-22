@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">p
+<html lang="en">
 <head> 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7131,7 +7131,14 @@ function renderHeaderWeather() {
     </div>`;
   }).join("");
 
-  if (locEl) locEl.textContent = `📍 ${wxLocationData.name}`;
+  if (locEl) {
+    // Use location_name from NWS readings (e.g. "Edmond, Oklahoma, US")
+    // Fall back to station name, then geocoder name
+    const savedStation = (() => { try { return JSON.parse(localStorage.getItem(NWS_STATION_KEY)||"{}"); } catch(e){ return {}; } })();
+    const savedLocation = (() => { try { return JSON.parse(localStorage.getItem(WEATHER_LOC_KEY)||"{}"); } catch(e){ return {}; } })();
+    const displayName = savedLocation?.locationName || nwsStationName || wxLocationData.name;
+    locEl.textContent = `📍 ${displayName}`;
+  }
   strip.style.display = "block";
 
   // Render or hide hourly panel
@@ -11266,6 +11273,26 @@ async function discoverNWSStation(lat, lon) {
     nwsStationId   = firstStation.properties.stationIdentifier;
     nwsStationName = firstStation.properties.name;
 
+    // Update wxLocationData name with NWS station city/state if available
+    try {
+      const pointsRes = await fetch(
+        `https://api.weather.gov/points/${lat},${lon}`,
+        { headers: { "User-Agent": NWS_USER_AGENT, "Accept": "application/json" } }
+      );
+      if (pointsRes.ok) {
+        const pointsData = await pointsRes.json();
+        const city  = pointsData?.properties?.relativeLocation?.properties?.city;
+        const state = pointsData?.properties?.relativeLocation?.properties?.state;
+        if (city && state && wxLocationData) {
+          wxLocationData.name = `${city}, ${state}`;
+          try { localStorage.setItem(WEATHER_LOC_KEY, JSON.stringify(wxLocationData)); } catch(e) {}
+          // Update header immediately
+          const locEl = document.getElementById("header-wx-loc");
+          if (locEl) locEl.textContent = `📍 ${city}, ${state}`;
+        }
+      }
+    } catch(e) { console.warn("NWS points lookup:", e.message); }
+
     const labelEl = document.getElementById("nws-station-label");
     const shortEl = document.getElementById("nws-station-name-short");
     if (labelEl) { labelEl.title = nwsStationName; }
@@ -11411,6 +11438,18 @@ function updateHeaderNWSTemp(tempF, desc) {
 async function saveNWSObservationToSupabase() {
   if (!nwsObsData || !wxLocationData) return;
   const p = nwsObsData;
+
+  // Update the stored location with the NWS-provided location name
+  // so the header shows the correct city (e.g. "Edmond, Oklahoma, US")
+  if (p.location_name || p.relativeLocation) {
+    const locName = p.location_name || wxLocationData.name;
+    try {
+      const stored = JSON.parse(localStorage.getItem(WEATHER_LOC_KEY) || "{}");
+      stored.locationName = locName;
+      localStorage.setItem(WEATHER_LOC_KEY, JSON.stringify(stored));
+    } catch(e) {}
+  }
+
   const record = {
     station_id:   nwsStationId,
     station_name: nwsStationName,
