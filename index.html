@@ -2686,7 +2686,29 @@
           <button class="queue-refresh" onclick="runFeedDiscovery()">Discover Feeds</button>
         </div>
         <div style="font-size:11px;color:var(--text-hint);margin-bottom:12px;">Automatically discover available data feeds from connected devices, weather stations, and integrations. Click a feed to add it to your active monitoring list.</div>
-        <div id="feed-discovery-list"><div class="sched-empty">Click Discover Feeds to scan for available data sources.</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
+          <select id="fd-state" style="padding:6px 10px;border-radius:var(--radius-sm);border:0.5px solid var(--border-md);background:var(--surface2);font-size:12px;min-width:80px;">
+            <option value="">State</option>
+            <option value="TX">TX</option><option value="OK">OK</option><option value="KS">KS</option>
+            <option value="NE">NE</option><option value="ND">ND</option><option value="SD">SD</option>
+            <option value="MN">MN</option><option value="IA">IA</option><option value="MO">MO</option>
+            <option value="AR">AR</option><option value="IL">IL</option><option value="MI">MI</option>
+            <option value="IN">IN</option><option value="WI">WI</option><option value="MT">MT</option>
+            <option value="WY">WY</option><option value="CO">CO</option><option value="NM">NM</option>
+            <option value="ME">ME</option><option value="NH">NH</option><option value="VT">VT</option>
+            <option value="MA">MA</option><option value="CT">CT</option><option value="RI">RI</option>
+            <option value="NY">NY</option><option value="CA">CA</option><option value="PA">PA</option>
+            <option value="NJ">NJ</option><option value="MD">MD</option><option value="DE">DE</option>
+            <option value="VA">VA</option><option value="WV">WV</option><option value="OH">OH</option>
+            <option value="KY">KY</option><option value="NC">NC</option><option value="TN">TN</option>
+            <option value="MS">MS</option><option value="AL">AL</option><option value="GA">GA</option>
+            <option value="FL">FL</option><option value="SC">SC</option><option value="LA">LA</option>
+          </select>
+          <input id="fd-utility" type="text" placeholder="Utility name (optional)" style="padding:6px 10px;border-radius:var(--radius-sm);border:0.5px solid var(--border-md);background:var(--surface2);font-size:12px;flex:1;min-width:140px;" />
+          <input id="fd-coords" type="text" placeholder="Lat,Lon (optional)" style="padding:6px 10px;border-radius:var(--radius-sm);border:0.5px solid var(--border-md);background:var(--surface2);font-size:12px;width:130px;" />
+        </div>
+        <div id="fd-results"></div>
+        <div id="feed-discovery-list"></div>
       </div>
 
       <!-- Active Feeds -->
@@ -10573,9 +10595,11 @@ function setDeviceDisabled(deviceId, disabled) {
 // ── Send Command ──────────────────────────────────────────────────────────────
 async function send(deviceId, key, label) {
   if (busy) return false;
+  const device = DEVICES.find(d => d.id === deviceId);
+  if (!device) { setStatus("error", "Unknown device — command blocked."); return false; }
   busy = true; setDeviceDisabled(deviceId, true); setStatus("sending", label + "...");
   try {
-    const res = await fetch(PROXY_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(COMMANDS[key]) });
+    const res = await fetch(PROXY_URL, { method: "POST", headers: { "Content-Type": "application/json", "X-Device-UID": device.uid }, body: JSON.stringify(COMMANDS[key]) });
     if (res.ok) { setStatus("ready", label + " — done."); busy = false; setDeviceDisabled(deviceId, false); return true; }
     else { setStatus("error", "Error " + res.status + " — command failed."); busy = false; setDeviceDisabled(deviceId, false); return false; }
   } catch(e) { setStatus("error", "Network error — check connection."); busy = false; setDeviceDisabled(deviceId, false); return false; }
@@ -10606,7 +10630,7 @@ async function sendToDevice(uid, key) {
     return;
   }
   try {
-    await fetch(PROXY_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(COMMANDS[key]) });
+    await fetch(PROXY_URL, { method: "POST", headers: { "Content-Type": "application/json", "X-Device-UID": uid }, body: JSON.stringify(COMMANDS[key]) });
   } catch(e) { console.error("Send error", uid, e); }
 }
 async function toggleRelay(deviceId, num) {
